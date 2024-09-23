@@ -1,9 +1,10 @@
 "use client";
 
-import { Button, Grid2 as Grid, Paper, Typography } from "@mui/material";
+import { Grid2 as Grid, Paper, Typography } from "@mui/material";
 import { useCallback, useEffect, useState } from "react";
 
 import Card from "../components/LocationCard";
+import LoadingButton from "@mui/lab/LoadingButton";
 import LocationInput from "../components/inputs/LocationAutoFill";
 import type { PlaceType } from "../components/inputs/LocationAutoFill";
 import PlacesAutoFill from "../components/inputs/PlacesAutoFill";
@@ -40,6 +41,7 @@ export default function LocationForm({
   const [user2Location, setUser2Location] = useState<PlaceType | null>(
     defaultPlace
   );
+  const [isLoading, setIsLoading] = useState(false);
 
   console.log(meetupLocations);
 
@@ -72,6 +74,7 @@ export default function LocationForm({
 
   const handleFindMeetupLocations = () => {
     if (user1.lat && user1.lng && user2.lat && user2.lng && place) {
+      setIsLoading(true);
       const body = {
         user1,
         user2,
@@ -89,7 +92,8 @@ export default function LocationForm({
       )
         .then((response) => response.json())
         .then((data) => setMeetupLocations(data.meetupLocations))
-        .catch((error) => console.error(error));
+        .catch((error) => console.error(error))
+        .finally(() => setIsLoading(false));
     }
   };
 
@@ -124,14 +128,15 @@ export default function LocationForm({
           <PlacesAutoFill setPlace={setPlace} />
         </Grid>
         <Grid size={{ xs: 12 }}>
-          <Button
-            variant="contained"
+          <LoadingButton
             color="primary"
             fullWidth
+            loading={isLoading}
             onClick={handleFindMeetupLocations}
+            variant="contained"
           >
             Find Meetup Locations
-          </Button>
+          </LoadingButton>
         </Grid>
       </Grid>
       <br />
